@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Мои транзакции</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* На маленьких экранах уменьшаем размер шрифта и таблицу */
+        @media (max-width: 576px) {
+            body {
+                font-size: 14px;
+            }
+            .table-responsive {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light">
+<div class="container mt-4">
+    <h2>Транзакции пользователя {{ current_user.username }}</h2>
+    <a href="{{ url_for('interactive_charts') }}" class="btn btn-success my-2">График расходов</a>
+
+    <div class="mb-3">
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Выйти</a>
+        <a href="{{ url_for('add_transaction') }}" class="btn btn-primary ms-2">Добавить транзакцию</a>
+        <a href="{{ url_for('weekly_summary') }}" class="btn btn-info ms-2">Аналитика за неделю</a>
+    </div>
+
+    <!-- Форма фильтрации по дате и категории -->
+    <form method="get" class="row g-3 align-items-end mb-4">
+        <div class="col-auto">
+            <label for="start_date" class="form-label">С:</label>
+            <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date or '' }}">
+        </div>
+        <div class="col-auto">
+            <label for="end_date" class="form-label">По:</label>
+            <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date or '' }}">
+        </div>
+        <div class="col-auto">
+            <label for="category" class="form-label">Категория:</label>
+            <select id="category" name="category" class="form-select">
+                <option value="">Все категории</option>
+                {% for cat in categories %}
+                    <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-secondary">Фильтровать</button>
+        </div>
+    </form>
+
+    {% if transactions %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Описание</th>
+                    <th>Категория</th>
+                    <th>Сумма</th>
+                    <th>Дата</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for t in transactions %}
+                <tr>
+                    <td>{{ t.description }}</td>
+                    <td>{{ t.category }}</td>
+                    <td>
+                        {{ "{:,.2f}"
+                        .format(t.amount)
+                        .replace(",", "X")
+                        .replace(".", ",")
+                        .replace("X", ".") }}
+                    </td>
+                    <td>{{ t.date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_transaction', id=t.id) }}" class="btn btn-sm btn-warning">Редактировать</a>
+                        <form action="{{ url_for('delete_transaction', id=t.id) }}" method="post" style="display:inline-block;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Удалить транзакцию?')">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    <nav aria-label="Pagination">
+  <ul class="pagination justify-content-center">
+    {% if pagination.has_prev %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('index', page=pagination.prev_num, start_date=start_date, end_date=end_date, category=selected_category) }}">Назад</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Назад</span></li>
+    {% endif %}
+
+    <li class="page-item disabled">
+      <span class="page-link">Страница {{ pagination.page }} из {{ pagination.pages }}</span>
+    </li>
+
+    {% if pagination.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('index', page=pagination.next_num, start_date=start_date, end_date=end_date, category=selected_category) }}">Вперед</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Вперед</span></li>
+    {% endif %}
+  </ul>
+</nav>
+    <a class="btn btn-success" href="{{ url_for('export_excel', start_date=start_date, end_date=end_date, category=selected_category) }}">
+    Экспорт в CSV
+</a>
+
+
+    {% else %}
+        <p class="text-muted">Транзакций нет.</p>
+    {% endif %}
+</div>
+</body>
+</html>
+
+

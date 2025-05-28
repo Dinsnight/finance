@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Интерактивные графики</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* На маленьких экранах уменьшаем размер шрифта и таблицу */
+        @media (max-width: 576px) {
+            body {
+                font-size: 14px;
+            }
+            .table-responsive {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto p-6">
+    <h2 class="text-3xl font-semibold mb-6 text-gray-800">Интерактивная диаграмма расходов</h2>
+    <div class="bg-white p-4 rounded shadow">
+      {{ chart|safe }}
+    </div>
+    <a href="{{ url_for('index') }}" class="inline-block mt-6 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition">
+      Назад
+    </a>
+  </div>
+</body>
+</html>

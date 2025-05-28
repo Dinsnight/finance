@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Категория</th>
+                <th>Сумма</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category, amount in summary.items() %}
+                <tr>
+                    <td>{{ category }}</td>
+                    <td>{{ "{:,.2f}".format(amount).replace(",", "X").replace(".", ",").replace("X", ".") }} {{ currency }}</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <th>Итого</th>
+                <th>{{ "{:,.2f}".format(total).replace(",", "X").replace(".", ",").replace("X", ".") }}</th>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Аналитика за неделю</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+      <style>
+      @media (max-width: 576px) {
+        h2 {
+          font-size: 1.25rem;
+        }
+        .container {
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
+        }
+        table {
+          font-size: 0.85rem;
+        }
+        a.btn {
+          padding: 0.25rem 0.5rem;
+          font-size: 0.8rem;
+        }
+      }
+    </style>
+</head>
+<body class="bg-light">
+<div class="container mt-4">
+    <h2>Аналитика расходов за неделю</h2>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary mb-3">Назад к транзакциям</a>
+
+    <div id="summary-container">
+        <!-- Здесь будет таблица, изначально подгруженная сервером -->
+        {% include 'summary_table.html' %}
+    </div>
+</div>
+
+<script>
+async function fetchSummary() {
+    try {
+        const response = await fetch('/api/weekly_summary');
+        const data = await response.json();
+
+        // Строим HTML таблицы из данных
+        let tableHTML = '<div class="table-responsive"><table class="table table-bordered">';
+        tableHTML += '<thead><tr><th>Категория</th><th>Сумма</th></tr></thead><tbody>';
+
+        for (const [category, {amount, currency}] of Object.entries(data.summary)) {
+            const formattedAmount = amount.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            tableHTML += `<tr><td>${category}</td><td>${formattedAmount} ${currency}</td></tr>`;
+        }
+
+        const formattedTotal = data.total.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        tableHTML += `<tr><th>Итого</th><th>${formattedTotal}</th></tr>`;
+        tableHTML += '</tbody></table></div>';
+
+        document.getElementById('summary-container').innerHTML = tableHTML;
+    } catch (error) {
+        console.error('Ошибка при загрузке данных:', error);
+    }
+}
+
+// Первичная загрузка
+fetchSummary();
+
+// Обновляем каждые 30 секунд (30000 мс)
+setInterval(fetchSummary, 30000);
+</script>
+</body>
+</html>
