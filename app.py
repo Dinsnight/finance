@@ -383,6 +383,29 @@ def api_weekly_summary():
     total = round(total, 2)
 
     return jsonify(summary=summary, total=total)
+@app.route('/budget', methods=['GET', 'POST'])
+@login_required
+def budget():
+    user_budget = current_user.budget
+    if request.method == 'POST':
+        amount = float(request.form['amount'])
+        start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d')
+        end_date = datetime.strptime(request.form['end_date'], '%Y-%m-%d')
+
+        if user_budget:
+            user_budget.amount = amount
+            user_budget.start_date = start_date
+            user_budget.end_date = end_date
+        else:
+            user_budget = Budget(amount=amount, start_date=start_date, end_date=end_date, user_id=current_user.id)
+            db.session.add(user_budget)
+
+        db.session.commit()
+        flash('Бюджет обновлен')
+        return redirect(url_for('index'))
+
+    return render_template('budget.html', budget=user_budget)
+
 
 if __name__ == '__main__':
     with app.app_context():
