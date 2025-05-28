@@ -29,14 +29,15 @@
     <div class="collapse navbar-collapse " id="navbarNavAltMarkup">
       <div class="navbar-nav m-auto">
         <a class="nav-link active btn" aria-current="page" href="{{ url_for('logout') }}">Выйти</a>
-        <a class="nav-link btn" href="{{ url_for('add_transaction') }}">Добавить транзакцию</a>
         <a class="nav-link btn" href="{{ url_for('weekly_summary') }}">Аналитика за неделю</a>
       </div>
     </div>
   </div>
 </nav>
 <div class="container mt-4">
-    <h2>Транзакции пользователя {{ current_user.username }}</h2>
+    <h2>Транзакции пользователя : {{ current_user.username }}</h2>
+
+    <a class=" btn btn-success my2" href="{{ url_for('add_transaction') }}">Добавить транзакцию</a>
     <a href="{{ url_for('interactive_charts') }}" class="btn btn-success my-2">График расходов</a>
 
     <!-- Форма фильтрации по дате и категории -->
